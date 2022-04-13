@@ -1,5 +1,7 @@
 # additional files
 *.pdf
+*.pkl
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
