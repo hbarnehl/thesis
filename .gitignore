@@ -1,3 +1,9 @@
+# R files
+*.Rhistory
+*.Rproj
+*.Rdata
+
+
 # additional files
 *.pdf
 *.pkl
@@ -132,3 +138,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.Rproj.user
