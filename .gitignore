@@ -2,6 +2,7 @@
 *.pdf
 *.pkl
 *.csv
+*gensim_models*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
