@@ -11,7 +11,7 @@ library(stmCorrViz)
 data <- read_csv("Data/dataset_token_ready.csv")
 
 # load tokenized texts and substitute for the text column in dataframe
-tokens = read_csv("Data/tokens/tokens_trigrams.csv", col_names = FALSE)
+tokens = read_csv("tokens/tokens_trigrams.csv", col_names = FALSE)
 data$tokens <- tokens$X1
 
 # there are some values missing for date, delete those rows
@@ -32,8 +32,11 @@ data <- data %>%
   transform(position = fct_collapse(page,
                                     regime = c("Canal2", "Canal4", "Radio la Primerisima",
                                                "Canal6", "Canal13", "Radio Nicaragua"),
-                                    neutral = c("Radio 800", "Canal10", "Canal14"),
-                                    opposition = c("Confidencial", "100% Noticias", "Radio Corporacion")))
+                                    Radio800 = "Radio 800",
+                                    Canal10 = "Canal10",
+                                    Canal14 = "Canal14",
+                                    RadioCorp = "Radio Corporacion",
+                                    opposition = c("Confidencial", "100% Noticias")))
 
 # remove tokens object from memory
 remove(tokens)
@@ -64,7 +67,7 @@ data <- textProcessor(data$tokens,
                            removestopwords = TRUE)
 
 # save processed data
-save(data, file = "Data/stm_preprocessed.Rdata")
+save(data, file = "Data/stm_preprocessed_neutral_disag.Rdata")
 
 # remove all objects from memory
 remove(list = ls())
@@ -72,7 +75,7 @@ remove(list = ls())
 ######################## Prepare Data for Model Estimation
 
 # load processed data
-load("Data/stm_preprocessed.Rdata")
+load("Data/stm_preprocessed_neutral_disag.Rdata")
 
 # prepare data for analysis
 out <- prepDocuments(data$documents,
@@ -86,13 +89,13 @@ vocab <- out$vocab
 meta <- out$meta
 
 # save prepared data, remove everything from memory
-save(docs, vocab, meta, file = "Data/stm_model_inputs.Rdata")
+save(docs, vocab, meta, file = "Data/stm_model_inputs_neutral_disag.Rdata")
 remove(list = ls())
 
 ######################## Estimate Model
 
 # load prepared data
-load("Data/stm_model_inputs.Rdata")
+load("Data/stm_model_inputs_neutral_disag.Rdata")
 meta <- meta %>% 
   select(page, days, position)
 
@@ -112,8 +115,8 @@ plot(searchKobj)
 plotModels(searchKobj)
 
 # run stm
-load("Data/stm_model_inputs.Rdata")
-i = 25
+load("Data/stm_model_inputs_neutral_disag.Rdata")
+i = 30
 meta <- meta %>% 
   select(page, days, position)
 PrevFit <- stm(documents = docs, vocab = vocab, K = i,
@@ -121,7 +124,7 @@ PrevFit <- stm(documents = docs, vocab = vocab, K = i,
                content =~ position,
                data = meta,
                emtol = 5e-04, max.em.its = 10)
-name = str_c("Models/stm_model_content_interaction",as.String(i), ".Rdata")
+name = str_c("Models/stm_model_content_interaction_neutral_disag",as.String(i), ".Rdata")
 save(PrevFit, file = name)
 rm(list = ls(all.names = TRUE))
 gc()
@@ -134,11 +137,11 @@ remove(list = ls())
 ######################## Investigate and Visualise Estimated Model ###########
 
 # load prepared data
-load("Models/stm_model_content_interaction_30.Rdata")
+load("Models/stm_model_content_interaction_neutral_disag30.Rdata")
 # load text data
 load("Data/df_with_tokens_filtered.Rdata")
 # load meta data
-load("Data/stm_model_inputs.Rdata")
+load("Data/stm_model_inputs_neutral_disag.Rdata")
 remove(docs, vocab)
 
 #################### Inspect topics
@@ -219,7 +222,7 @@ summary(prep_inter, topics = 1)
 load("Models/estimation_30_content_interaction.Rdata")
 
 for (i in seq(length(topic_names))) {
-  name <- str_c("Figures/positionxtime/", topic_names[[i]], ".png")
+  name <- str_c("Figures/content_interaction_disag_30/positionxtime/", topic_names[[i]], ".png")
   png(file=name, width=900, height=525)
   plot(prep_inter, covariate = "days", model = PrevFit, topics = i,
        method = "continuous", moderator = "position",
@@ -252,7 +255,7 @@ for (i in seq(length(topic_names))) {
 
 # show effect of position variable
 for (i in seq(length(topic_names))) {
-  name <- str_c("Figures/position/", topic_names[[i]], ".png")
+  name <- str_c("Figures/content_interaction_disag_30/position/", topic_names[[i]], ".png")
   png(file=name, width=900, height=525)
   plot(prep_no_inter, covariate = "position", topics = i, model = PrevFit,
        method = "pointestimate",
@@ -266,7 +269,7 @@ for (i in seq(length(topic_names))) {
 
 # show effect of time
 for (i in seq(length(topic_names))) {
-  name <- str_c("Figures/time/", topic_names[[i]], ".png")
+  name <- str_c("Figures/content_interaction_disag_30/time/", topic_names[[i]], ".png")
   png(file=name, width=900, height=525)
   plot(prep_no_inter, covariate = "days", method = "continuous",
        topics = i, model = PrevFit, printlegend = FALSE,
@@ -284,7 +287,7 @@ for (i in seq(length(topic_names))) {
 ############ Show Metadata effects on topic content
 
 for (i in seq(length(topic_names))) {
-  name <- str_c("Figures/content/", topic_names[[i]], ".png")
+  name <- str_c("Figures/content_interaction_disag_30/content/", topic_names[[i]], ".png")
   png(file=name, width=1200, height=1000)
   plot(PrevFit, topics = i, n = 30,
        type = "perspectives",
