@@ -10,6 +10,7 @@ Models/*
 
 
 # additional files
+*.xlsx
 *.pdf
 *.pkl
 *.csv

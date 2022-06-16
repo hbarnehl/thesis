@@ -43,7 +43,7 @@ remove(tokens)
 
 # select relevant columns for topic model
 data <- data %>% 
-  select(page, text, tokens, days, date, position)
+  select(page, text, tokens, days, date, position, title)
 
 # save processed data
 save(data, file = "Data/df_with_tokens_filtered.Rdata")
@@ -99,14 +99,6 @@ load("Data/stm_model_inputs_neutral_disag.Rdata")
 meta <- meta %>% 
   select(page, days, position)
 
-# find optimal number of topics
-meta <- meta %>%
-  select(page, days, position)
-searchKobj <- searchK(documents = docs, vocab = vocab, K = c(20,23,25,27,29,30,32,34),
-                      prevalence =~ position + s(days),
-                      data = meta,
-                      emtol = 5e-04, max.em.its = 10)
-
 save(searchKobj, file = "Models/searchK")
 
 # examine searchk object
@@ -156,7 +148,7 @@ labelTopics(PrevFit, frexweight = 0.99)
 sageLabels(PrevFit)
 
 # get top document associated with topics
-thoughts <- findThoughts(PrevFit, texts = meta$text, n = 50, where = position=="neutral", meta=meta)
+thoughts <- findThoughts(PrevFit, texts = meta$title, n = 5, meta=meta)
 plotQuote(thoughts$docs$`Topic 6`[[20]], width = 130, text.cex = 0.7, main = "Topic 6")
 
 # give names to topics

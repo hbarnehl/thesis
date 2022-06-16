@@ -4,7 +4,7 @@ import pysentimiento
 import pickle
 
 # load dataset with preprocessed text
-df = pd.read_csv('dataset_token_ready.csv')
+df = pd.read_csv('/home/hennes/thesis/Data/dataset_token_ready.csv')
 
 # define regex to search for mentions of president Ortega
 regex = r'([Oo]rtega)|([Nn]uestro [Pp]residente)|[Pp]residente de [Nn]icaragua|([Cc]omandante [Dd]aniel)|[Dd]aniel y [Rr]osario'
@@ -28,5 +28,5 @@ analyzer = pysentimiento.create_analyzer(task="sentiment", lang="es")
 
 df["sentiment"] = df["sentences"].apply(lambda x: analyzer.predict(x).output)
 
-with open("dataset_sentiment.pkl", "wb") as f:
+with open("/home/hennes/thesis/Data/dataset_sentiment.pkl", "wb") as f:
     pickle.dump(df, f)
