@@ -99,12 +99,7 @@ load("Data/stm_model_inputs_neutral_disag.Rdata")
 meta <- meta %>% 
   select(page, days, position)
 
-save(searchKobj, file = "Models/searchK")
 
-# examine searchk object
-load("Models/searchK")
-plot(searchKobj)
-plotModels(searchKobj)
 
 # run stm
 load("Data/stm_model_inputs_neutral_disag.Rdata")
